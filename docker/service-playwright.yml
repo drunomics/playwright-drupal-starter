@@ -1,0 +1,22 @@
+version: '2.3'
+
+services:
+  playwright:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.playwright
+    shm_size: 512M
+    environment:
+      DOCKER_EXEC_CLI: "docker exec ${COMPOSE_PROJECT_NAME}_cli_1 bash -c"
+      BASE_URL: ${URL_SCHEME:-http}://
+      APP_SECRET: ${APP_SECRET}
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:-}
+      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-}
+    working_dir: /e2e
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${COMPOSE_CACHE_DIR:-./devsetup-docker/data}/.npm:/home/.npm
+      - ./tests/playwright/tests:/e2e/tests
+      - ./tests/playwright/playwright.config.js:/e2e/playwright.config.js
+    networks:
+      default: {}

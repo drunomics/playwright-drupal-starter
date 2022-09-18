@@ -1,0 +1,30 @@
+FROM mcr.microsoft.com/playwright:v1.24.2-focal
+ARG COMPOSE_DEFAULT_USER=1000
+
+COPY tests/playwright/package.json /e2e/package.json
+COPY tests/playwright/package-lock.json /e2e/package-lock.json
+COPY tests/playwright/.env /e2e/.env
+
+WORKDIR /e2e
+
+RUN apt-get update -qq \
+    && apt-get install -qqy apt-transport-https ca-certificates curl gnupg2 software-properties-common
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+
+RUN add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+RUN apt-get update
+
+RUN apt-get install -y \
+  acl \
+  docker-ce-cli
+
+RUN npm i -g wrangler
+RUN npm i -D dotenv
+RUN ls -a && npm install && npx playwright install
+
+CMD exec setfacl --modify user:1000:rw /var/run/docker.sock
+CMD tail -f /dev/null

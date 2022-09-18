@@ -1,0 +1,5 @@
+/playwright.config.js
+/test-results/*
+/html-report/*
+.env
+.env.envsubst
